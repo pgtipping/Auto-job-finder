@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# 全局 WebDriver 实例
+# Global WebDriver instance
 driver = None
 
 
@@ -35,7 +35,7 @@ def open_browser_with_options(url, browser):
 
     driver.get(url)
 
-    # 等待直到页面包含特定的 XPath 元素
+    # Wait until page contains specific XPath element
     xpath_locator = "//*[@id='header']/div[1]/div[3]/div/a"
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, xpath_locator))
@@ -45,11 +45,11 @@ def open_browser_with_options(url, browser):
 def log_in():
     global driver
 
-    # 点击按钮
+    # Click button
     login_button = driver.find_element(By.XPATH, "//*[@id='header']/div[1]/div[3]/div/a")
     login_button.click()
 
-    # 等待微信登录按钮出现
+    # Wait for WeChat login button to appear
     xpath_locator_wechat_login = "//*[@id='wrap']/div/div[2]/div[2]/div[2]/div[1]/div[4]/a"
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, xpath_locator_wechat_login))
@@ -72,48 +72,48 @@ def log_in():
 def get_job_description():
     global driver
 
-    # 使用给定的 XPath 定位职位描述元素
+    # Locate job description element using given XPath
     xpath_locator_job_description = "//*[@id='wrap']/div[2]/div[2]/div/div/div[2]/div/div[2]/p"
 
-    # 确保元素已加载并且可以获取文本
+    # Ensure element is loaded and text can be retrieved
     job_description_element = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.XPATH, xpath_locator_job_description))
     )
 
-    # 获取职位描述文本
+    # Get job description text
     job_description = job_description_element.text
-    print(job_description)  # 打印出职位描述，或者你可以在这里做其他处理
+    print(job_description)  # Print job description, or you can do other processing here
 
-    # 返回职位描述文本，如果函数需要
+    # Return job description text if function requires it
     return job_description
 
 
 def select_dropdown_option(driver, label):
-    # 尝试在具有特定类的元素中找到文本
+    # Try to find text in elements with specific class
     trigger_elements = driver.find_elements(By.XPATH, "//*[@class='recommend-job-btn has-tooltip']")
 
-    # 标记是否找到元素
+    # Mark whether element is found
     found = False
 
     for element in trigger_elements:
         if label in element.text:
-            # 确保元素可见并且可点击
+            # Ensure element is visible and clickable
             WebDriverWait(driver, 10).until(EC.element_to_be_clickable(element))
-            element.click()  # 点击找到的元素
+            element.click()  # Click found element
             found = True
             break
 
-    # 如果在按钮中找到了文本，就不再继续下面的操作
+    # If text is found in button, don't continue with following operations
     if found:
-        # 取消注释，提供选择更多tag的时间
+        # Uncomment to provide time to select more tags
         # time.sleep(20)
         return
 
-    # 如果在按钮中没有找到文本，执行原来的下拉列表操作
+    # If text is not found in button, perform original dropdown operation
     trigger_selector = "//*[@id='wrap']/div[2]/div[1]/div/div[1]/div"
     WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, trigger_selector))
-    ).click()  # 打开下拉菜单
+    ).click()  # Open dropdown menu
 
     dropdown_selector = "ul.dropdown-expect-list"
     WebDriverWait(driver, 10).until(
@@ -123,7 +123,7 @@ def select_dropdown_option(driver, label):
     option_selector = f"//li[contains(text(), '{label}')]"
     WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, option_selector))
-    ).click()  # 选择下拉菜单中的选项
+    ).click()  # Select option in dropdown menu
 
 
 def get_job_description_by_index(index):

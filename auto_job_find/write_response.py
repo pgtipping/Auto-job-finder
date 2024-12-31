@@ -77,7 +77,7 @@ def chat(user_input, assistant_id, thread_id=None):
             run_status = client.beta.threads.runs.retrieve(
                 thread_id=thread_id,
                 run_id=run.id,
-                timeout=60  # 设置超时时间为60秒
+                timeout=60  # Set timeout to 60 seconds
             )
 
             if run_status.status == 'completed':
@@ -91,7 +91,7 @@ def chat(user_input, assistant_id, thread_id=None):
         messages = client.beta.threads.messages.list(thread_id=thread_id)
         assistant_message = messages.data[0].content[0].text.value
 
-        # 将换行符替换为一个空格
+        # Replace newlines with a single space
         formatted_message = assistant_message.replace("\n", " ").replace(" ", "").replace("真诚的，龙思卓", "")
         import re
         formatted_message = re.sub(r'【.*?】', '', formatted_message)
@@ -107,74 +107,74 @@ def chat(user_input, assistant_id, thread_id=None):
 
 
 def send_response_to_chat_box(driver, response):
-    # 定位聊天输入框
+    # Locate chat input box
     chat_box = driver.find_element(By.XPATH, "//*[@id='chat-input']")
 
-    # 清除输入框中可能存在的任何文本
+    # Clear any existing text in the input box
     chat_box.clear()
 
-    # 将响应粘贴到输入框
+    # Paste response into input box
     chat_box.send_keys(response)
     time.sleep(3)
 
-    # 模拟按下回车键来发送消息
+    # Simulate pressing Enter to send message
     chat_box.send_keys(Keys.ENTER)
     time.sleep(1)
 
 
 def send_response_and_go_back(driver, response):
-    # 调用函数发送响应
+    # Call function to send response
     send_response_to_chat_box(driver, response)
 
     time.sleep(10)
-    # 返回到上一个页面
+    # Return to previous page
     driver.back()
     time.sleep(3)
 
 
 def send_job_descriptions_to_chat(url, browser_type, label, assistant_id=None, vectorstore=None):
-    # 开始浏览并获取工作描述
+    # Start browsing and get job descriptions
     finding_jobs.open_browser_with_options(url, browser_type)
     finding_jobs.log_in()
 
-    job_index = 1  # 开始的索引
+    job_index = 1  # Starting index
     while True:
         try:
-            # 获取 driver 实例
+            # Get driver instance
             driver = finding_jobs.get_driver()
 
-            # 更改下拉列表选项
+            # Change dropdown option
             finding_jobs.select_dropdown_option(driver, label)
-            # 调用 finding_jobs.py 中的函数来获取描述
+            # Call function from finding_jobs.py to get description
             job_description = finding_jobs.get_job_description_by_index(job_index)
             if job_description:
                 element = driver.find_element(By.CSS_SELECTOR, '.op-btn.op-btn-chat').text
                 print(element)
-                if element == '立即沟通':
-                    # 发送描述到聊天并打印响应
+                if element == 'Contact Now':
+                    # Send description to chat and print response
                     if should_use_langchain():
                         response = generate_letter(vectorstore, job_description)
                     else:
                         response = chat(job_description, assistant_id)
                     print(response)
                     time.sleep(1)
-                    # 点击沟通按钮
+                    # Click contact button
 
                     contact_button = driver.find_element(By.XPATH,
                                                          "//*[@id='wrap']/div[2]/div[2]/div/div/div[2]/div/div[1]/div[2]/a[2]")
 
                     contact_button.click()
 
-                    # 等待回复框出现
+                    # Wait for reply box to appear
                     xpath_locator_chat_box = "//*[@id='chat-input']"
                     chat_box = WebDriverWait(driver, 50).until(
                         EC.presence_of_element_located((By.XPATH, xpath_locator_chat_box))
                     )
 
-                    # 调用函数发送响应
+                    # Call function to send response
                     send_response_and_go_back(driver, response)
 
-            # 等待一定时间后处理下一个工作描述
+            # Wait for a while before processing next job description
             time.sleep(3)
             # job_index += 1
 
@@ -186,7 +186,7 @@ def send_job_descriptions_to_chat(url, browser_type, label, assistant_id=None, v
 if __name__ == '__main__':
     url = "https://www.zhipin.com/web/geek/job-recommend?ka=header-job-recommend"
     browser_type = "chrome"
-    label = "iOS（深圳）"  # 想要选择的下拉菜单项
+    label = "iOS（深圳）"  # Dropdown menu item to select
     if should_use_langchain():
         text = read_resumes()
         chunks = get_text_chunks(text)
