@@ -92,7 +92,7 @@ def chat(user_input, assistant_id, thread_id=None):
         assistant_message = messages.data[0].content[0].text.value
 
         # Replace newlines with a single space
-        formatted_message = assistant_message.replace("\n", " ").replace(" ", "").replace("真诚的，龙思卓", "")
+        formatted_message = assistant_message.replace("\n", " ").replace(" ", "").replace("Sincerely, Long Sizhuo", "")
         import re
         formatted_message = re.sub(r'【.*?】', '', formatted_message)
 
@@ -186,7 +186,7 @@ def send_job_descriptions_to_chat(url, browser_type, label, assistant_id=None, v
 if __name__ == '__main__':
     url = "https://www.zhipin.com/web/geek/job-recommend?ka=header-job-recommend"
     browser_type = "chrome"
-    label = "iOS（深圳）"  # Dropdown menu item to select
+    label = "iOS（Shenzhen）"  # Dropdown menu item to select
     if should_use_langchain():
         text = read_resumes()
         chunks = get_text_chunks(text)

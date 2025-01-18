@@ -83,7 +83,7 @@ def generate_letter(vectorstore, job_description):
     result = qa_chain({"query": question})
     letter = result['result']
 
-    #去掉所有换行符，防止分成多段消息
+    # Remove all newline characters to prevent splitting into multiple messages
     letter = letter.replace('\n', ' ')
 
     return letter

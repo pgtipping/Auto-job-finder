@@ -36,6 +36,9 @@ env/
 .DS_Store
 Thumbs.db
 
+# Misc
+*.txt
+
 # Logs and databases
 *.log
 *.sqlite
