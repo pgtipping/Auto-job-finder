@@ -1,0 +1,158 @@
+# Cursor Rules - 2023-03-17
+
+## Project Structure Patterns - 2023-03-17
+
+- Keep all Python utility functions in separate modules based on functionality
+- Organize frontend code (when implemented) in a client directory with standard React structure
+- Store all AI prompts in the prompts.py file for centralized management
+- Place all environment variables in .env file and access via python-dotenv
+- Use separate directories for web and mobile implementations
+- Keep database migrations in a dedicated migrations directory
+- Create an `applyright` directory for all ApplyRight integration code
+- Store API integration configuration in a dedicated config file
+- Organize Docker-related files in the root directory
+- Keep automation scripts in the `automations` directory
+- Store platform-specific code in dedicated subdirectories (e.g., `platforms/linkedin`)
+
+## Code Style Patterns - 2023-03-17
+
+- Use PEP 8 style guide for Python code
+- Use 4 spaces for Python indentation
+- Use camelCase for JavaScript variables and functions
+- Use PascalCase for React components
+- Keep functions small and focused on a single responsibility
+- Document all functions with docstrings
+- Add typing annotations to Python functions
+- Prefix ApplyRight integration functions with `ar_` to clearly identify them
+- Use async/await for asynchronous operations in both Python and JavaScript
+- Follow Docker best practices for optimized container size
+
+## Naming Conventions - 2023-03-17
+
+- Use descriptive variable names that indicate purpose
+- Prefix boolean variables with 'is_', 'has_', etc.
+- Use verb-noun format for function names (e.g., get_job_description)
+- Name files according to their primary functionality
+- Use snake_case for Python files and camelCase for JavaScript files
+- Include 'applyright' in the name of integration-related components
+- Use 'premium' prefix for features only available to paid users
+- Suffix Docker volume mounts with '_volume'
+- Use platform prefixes for platform-specific automation functions (e.g., linkedin_apply)
+
+## Error Handling Patterns - 2023-03-17
+
+- Use try-except blocks for API calls and external integrations
+- Implement exponential backoff for retrying failed API requests
+- Log all errors with sufficient context for debugging
+- Handle authentication failures gracefully with user-friendly messages
+- Use custom exception classes for specific error scenarios
+- Create dedicated error handling for ApplyRight API failures
+- Implement graceful degradation when ApplyRight is unavailable
+- Include appropriate error handling for container startup failures
+- Store detailed error logs for automation failures
+- Implement fallback strategies for when Quick Apply is unavailable
+
+## API Interaction Patterns - 2023-03-17
+
+- Use a common utility function for making API requests
+- Implement rate limiting for external API calls
+- Cache API responses where appropriate
+- Validate API responses before processing
+- Use environment variables for API keys and endpoints
+- Create a dedicated ApplyRight API client class
+- Implement webhook handlers for real-time updates from ApplyRight
+- Use circuit breaker pattern for ApplyRight API calls
+- Follow RESTful API design practices for the automation service
+- Implement health check endpoints for monitoring service status
+
+## Docker Patterns - 2023-03-17
+
+- Use multi-stage builds to minimize container size
+- Include only necessary dependencies in the final image
+- Store persistent data in named volumes
+- Set appropriate environment variables in the container
+- Use non-root users for enhanced security
+- Implement proper signal handling for graceful shutdowns
+- Cache dependencies to speed up builds
+- Tag images with semantic versioning
+- Use health checks to monitor container status
+- Document Docker setup in README.md
+
+## Deployment Patterns - 2023-03-17
+
+- Use infrastructure as code (Fly.io configuration)
+- Implement automated deployment through CI/CD
+- Set up appropriate resource limits for containers
+- Use environment-specific configuration
+- Implement proper logging for production environments
+- Set up monitoring and alerting
+- Use proper secrets management
+- Implement database migration strategy
+- Document deployment process in detail
+- Configure auto-scaling policies
+
+## User Preferences - 2023-03-17
+
+- Mobile-first design approach for all UI components
+- Dark mode support for web and mobile interfaces
+- Allow user customization of application settings
+- Support for multiple resume profiles per user
+- Job filtering based on user-defined criteria
+- Show premium features with upgrade prompts for non-premium users
+- Maintain visual consistency with ApplyRight UI components
+- Allow configuration of Quick Apply preferences
+- Provide options for manual review before submission
+- Support notification preferences for application updates
+
+## Development Workflow - 2023-03-17
+
+- Create feature branches from main
+- Use descriptive commit messages
+- Run tests locally before pushing
+- Document changes in memory-bank after implementing features
+- Update requirements.txt when adding new dependencies
+- Test ApplyRight integration in development environment
+- Use mock data for ApplyRight responses during development
+- Test Docker container locally before deployment
+- Use local volumes for development data
+- Separate development and production configurations
+
+## Security Practices - 2023-03-17
+
+- Never commit API keys or credentials to the repository
+- Store sensitive information in environment variables
+- Use prepared statements for database queries
+- Validate all user inputs
+- Implement proper authentication checks on all routes
+- Never store plaintext passwords
+- Use secure token exchange with ApplyRight
+- Implement API key rotation for ApplyRight integration
+- Encrypt all data exchanged with ApplyRight
+- Secure container configuration by following best practices
+- Implement proper CORS policies for API endpoints
+
+## Database Interaction - 2023-03-17
+
+- Use ORM for database operations
+- Implement connection pooling for performance
+- Use transactions for related operations
+- Add indexes for frequently queried fields
+- Implement proper cascade behavior for related entities
+- Create foreign key relationships to ApplyRight data IDs
+- Cache frequently accessed ApplyRight data
+- Use database migrations for schema changes
+- Implement proper connection handling in containerized environments
+- Set up backup and recovery procedures
+
+## Testing Strategy - 2023-03-17
+
+- Write unit tests for utility functions
+- Create integration tests for API endpoints
+- Implement end-to-end tests for critical user flows
+- Use mocks for external dependencies in tests
+- Maintain high test coverage for core functionality
+- Create dedicated tests for ApplyRight integration
+- Use fixture data for ApplyRight API responses
+- Implement contract testing for ApplyRight API
+- Test Docker container in isolated environments
+- Implement performance testing for automation workflows

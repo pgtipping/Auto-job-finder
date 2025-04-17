@@ -38,6 +38,7 @@ Thumbs.db
 
 # Misc
 *.txt
+/docs*
 
 # Logs and databases
 *.log

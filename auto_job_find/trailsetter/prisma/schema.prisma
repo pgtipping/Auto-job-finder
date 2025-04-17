@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // Custom output path to place generated client within src/
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql" // Ensure this matches your database
+  url      = env("DATABASE_URL")
+}
+
+// User model - Links to ApplyRight user
+model User {
+  id                 String        @id @default(uuid()) // Using UUID for primary key
+  applyrightUserId   String        @unique @map("applyright_user_id") // Link to ApplyRight User ID
+  email              String        @unique
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
+  resumes            Resume[] // Relation to Resumes
+  applications       Application[] // Relation to Applications
+
+  @@map("users") // Map to 'users' table in the database
+}
+
+// Resume model - Links to ApplyRight resume
+model Resume {
+  id                 String        @id @default(uuid())
+  userId             String        @map("user_id")
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade) // Relation to User
+  applyrightResumeId String        @unique @map("applyright_resume_id") // Link to ApplyRight Resume ID
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
+  isDefault          Boolean?      @map("is_default") // Optional default flag
+  applications       Application[] // Relation to Applications
+
+  @@map("resumes") // Map to 'resumes' table
+}
+
+// Job model - Stores job posting details
+model Job {
+  id              String        @id @default(uuid())
+  platform        String // e.g., 'linkedin'
+  platformJobId   String        @map("platform_job_id") // Job ID from the platform
+  url             String        @unique
+  title           String
+  company         String
+  location        String?
+  description     String?       @db.Text // Use Text for potentially long descriptions
+  hasQuickApply   Boolean?      @map("has_quick_apply")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  applications    Application[] // Relation to Applications
+
+  @@unique([platform, platformJobId]) // Unique constraint for platform + job ID
+  @@index([platformJobId]) // Index platform job ID
+  @@map("jobs") // Map to 'jobs' table
+}
+
+// Application model - Tracks application attempts
+model Application {
+  id                       String    @id @default(uuid())
+  userId                   String    @map("user_id")
+  user                     User      @relation(fields: [userId], references: [id], onDelete: Cascade) // Relation to User
+  jobId                    String    @map("job_id")
+  job                      Job       @relation(fields: [jobId], references: [id], onDelete: Cascade) // Relation to Job
+  resumeId                 String    @map("resume_id")
+  resume                   Resume    @relation(fields: [resumeId], references: [id]) // Relation to Resume used
+  applyrightCoverLetterId  String?   @map("applyright_cover_letter_id") // Link to ApplyRight Cover Letter ID
+  status                   String    @default("pending") // e.g., pending, processing, requires_review, submitted, error, etc.
+  submittedAt              DateTime? @map("submitted_at")
+  lastStatusUpdate         DateTime  @updatedAt @map("last_status_update") // Use @updatedAt for simplicity
+  errorMessage             String?   @db.Text @map("error_message")
+  notes                    String?   @db.Text
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at") // General record update time
+
+  @@index([status]) // Index status for filtering
+  @@map("applications") // Map to 'applications' table
+}
