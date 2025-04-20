@@ -3,18 +3,31 @@ import { prisma } from "@/lib/prisma"; // Corrected: Use named import
 
 // Placeholder for a shared secret validation mechanism
 const validateAutomationRequest = (request: Request): boolean => {
-  const secret = request.headers.get("X-Automation-Secret");
-  // TODO: Implement proper secret validation using environment variables
-  // For now, allow any request if the header exists (replace with actual check)
-  // return secret === process.env.BROWSERLESS_CALLBACK_SECRET;
-  return !!secret; // Placeholder: Allow if header exists
+  const receivedSecret = request.headers.get("X-Automation-Secret");
+  const expectedSecret = process.env.AUTOMATION_CALLBACK_SECRET;
+
+  if (!expectedSecret) {
+    console.error(
+      "CRITICAL: AUTOMATION_CALLBACK_SECRET is not set in environment. Cannot validate callback requests."
+    );
+    return false; // Fail validation if the expected secret isn't configured
+  }
+
+  if (!receivedSecret || receivedSecret !== expectedSecret) {
+    console.warn(
+      "Callback validation failed: Incorrect or missing X-Automation-Secret header."
+    );
+    return false;
+  }
+
+  return true; // Secrets match
 };
 
 interface StatusUpdatePayload {
   status: string; // e.g., 'PROCESSING', 'APPLIED', 'FAILED', 'NEEDS_REVIEW'
-  message?: string; // Optional details or error message
-  jobTitle?: string; // Optional: Update job title if found
-  jobCompany?: string; // Optional: Update job company if found
+  message?: string; // Optional details
+  error?: string; // Optional error message
+  // Removed jobTitle and jobCompany as we are not updating job from status endpoint for now
 }
 
 export async function POST(
@@ -58,51 +71,16 @@ export async function POST(
       );
     }
 
-    // Explicitly type the expected return shape when using include
-    const application = await prisma.application.findUnique({
-      where: { id: applicationId },
-      include: { job: true }, // Include job to potentially update it
-    });
-
-    // Add a check if application exists before proceeding
-    if (!application) {
-      console.error(`Application not found for ID: ${applicationId}`);
-      return NextResponse.json(
-        { error: "Application not found" },
-        { status: 404 }
-      );
-    }
-
-    // Type assertion to help TypeScript understand the included relation
-    // Note: This assumes the relation always exists if the application is found,
-    // which should be true based on the schema being non-nullable.
-    const job = application.job;
-
-    // Prepare data for update (Removed the misplaced/redundant check)
-    const updateData: {
-      status: string;
-      job?: { update?: { title?: string; company?: string } };
-    } = {
+    // Prepare data for update, including status and errorMessage
+    // errorMessage will be set to the payload's error message, or null if no error provided
+    const updateData = {
       status: payload.status,
+      errorMessage: payload.error || null, // Set errorMessage from payload, default to null
+      // Add submittedAt timestamp if status indicates success
+      ...(payload.status === "SUBMISSION_SUCCESS" && {
+        submittedAt: new Date(),
+      }),
     };
-
-    // Conditionally update job details if provided and not already set
-    // Use the 'job' variable derived from the included relation
-    const jobUpdateData: { title?: string; company?: string } = {};
-    if (payload.jobTitle && !job.title) {
-      // Use job.title
-      jobUpdateData.title = payload.jobTitle;
-    }
-    if (payload.jobCompany && !job.company) {
-      // Use job.company
-      jobUpdateData.company = payload.jobCompany;
-    }
-
-    if (Object.keys(jobUpdateData).length > 0) {
-      updateData.job = {
-        update: jobUpdateData,
-      };
-    }
 
     // Perform the update
     const updatedApplication = await prisma.application.update({
@@ -111,7 +89,7 @@ export async function POST(
     });
 
     console.log(
-      `Successfully updated status for application ID: ${applicationId} to ${payload.status}`
+      `Successfully updated status for application ID: ${applicationId} to ${payload.status}. Error message: ${updateData.errorMessage}`
     );
     // TODO: Potentially trigger notifications or other actions here
 

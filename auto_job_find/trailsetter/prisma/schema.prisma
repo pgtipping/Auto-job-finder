@@ -20,6 +20,8 @@ model User {
   id                 String        @id @default(uuid()) // Using UUID for primary key
   applyrightUserId   String        @unique @map("applyright_user_id") // Link to ApplyRight User ID
   email              String        @unique
+  linkedinUsername         String?       @map("linkedin_username") // Optional LinkedIn username
+  linkedinPasswordEncrypted String?    @map("linkedin_password_encrypted") @db.Text // Optional encrypted LinkedIn password (use Text for potentially long encrypted strings)
   createdAt          DateTime      @default(now()) @map("created_at")
   updatedAt          DateTime      @updatedAt @map("updated_at")
   resumes            Resume[] // Relation to Resumes

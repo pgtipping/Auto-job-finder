@@ -121,6 +121,8 @@ exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   applyrightUserId: 'applyrightUserId',
   email: 'email',
+  linkedinUsername: 'linkedinUsername',
+  linkedinPasswordEncrypted: 'linkedinPasswordEncrypted',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
